@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milan Bible Quiz</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        button { background-color: #1a73e8; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
+        button:hover { background-color: #1557b0; }
+        .hidden { display: none; }
+        .quiz-box { text-align: left; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="main-container">
+    <div id="login-section">
+        <h2>बाइबल क्विजमा स्वागत छ</h2>
+        <p>अगाडि बढ्न कृपया आफ्नो गुगल खाताबाट लग-इन गर्नुहोस्।</p>
+        <button onclick="googleLogin()">Google मार्फत लग-इन गर्नुहोस्</button>
+    </div>
+
+    <div id="quiz-section" class="hidden">
+        <h2 id="user-name"></h2>
+        <div class="quiz-box">
+            <p id="question">प्रश्न यहाँ लोड हुँदैछ...</p>
+            <div id="options"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // तपाईँको फायरबेस कन्फिगरेशन (यहाँ तपाईँको आफ्नै प्रोजेक्टको की हाल्न सकिन्छ)
+    const firebaseConfig = {
+        authDomain: "milan-bible-quiz.firebaseapp.com",
+        projectId: "milan-bible-quiz"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function googleLogin() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('quiz-section').classList.remove('hidden');
+                document.getElementById('user-name').innerText = "नमस्ते, " + result.user.displayName;
+                startQuiz();
+            }).catch((error) => {
+                alert("लग-इनमा समस्या आयो: " + error.message);
+            });
+    }
+
+    function startQuiz() {
+        const questions = [
+            { q: "बाइबलको सबैभन्दा छोटो पुस्तक कुन हो?", options: ["यूहन्ना", "२ यूहन्ना", "ओबद्या", "१ पत्रुस"], a: 1 },
+            { q: "संसारको सृष्टि कति दिनमा भएको थियो?", options: ["५ दिन", "६ दिन", "७ दिन", "१२ दिन"], a: 1 }
+        ];
+        let currentQ = 0;
+        showQuestion(questions[currentQ]);
+    }
+
+    function showQuestion(qObj) {
+        document.getElementById('question').innerText = qObj.q;
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        qObj.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => alert("तपाईँले " + opt + " रोज्नुभयो। अर्को प्रश्न चाँडै आउँदैछ!");
+            optionsDiv.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>
